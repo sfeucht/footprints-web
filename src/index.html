@@ -5,18 +5,18 @@
     <title>Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description"
-        content="" />
-    <meta property="og:title" content="Future Lens" />
-    <meta property="og:url" content="https://future.baulab.info/" />
-    <meta property="og:image" content="https://future.baulab.info/images/fv-thumb.png" />
+        content="How do LLMs process multi-token words, common phrases, and named entities? We discover a pattern of token erasure that we hypothesize is a 'footprint' of how LLMs process unnatural tokenization." />
+    <meta property="og:title" content="Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs" />
+    <meta property="og:url" content="https://footprints.baulab.info/" />
+    <meta property="og:image" content="https://footprints.baulab.info/images/paper/probe-cf.png" />
     <meta property="og:description" content="
-    We conjecture that hidden state vectors corresponding to individual input tokens encode information sufficient to accurately predict several tokens ahead.">
+    ">
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs" />
     <meta name="twitter:description"
-        content="Do hidden states in large language models (LLMs) encode tokens farther than a single token ahead? If so, how can we decode this sequence of tokens from a single state?" />
-    <meta name="twitter:image" content="https://future.baulab.info/images/fv-thumb.png" />
+        content="How do LLMs process multi-token words, common phrases, and named entities? We discover a pattern of token erasure that we hypothesize is a 'footprint' of how LLMs process unnatural tokenization." />
+    <meta name="twitter:image" content="https://footprints.baulab.info/images/paper/probe-cf.png" />
     <link rel="icon" href="favicon.ico?v=2" type="image/x-icon"/>
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
@@ -135,16 +135,16 @@
                 <h2>What do We Mean by "Word-Like Representations"?</h2>
 
                 <p>
-                    In this work, our goal is to understand the <b>lexical items</b> that make up an LLM’s implicit vocabulary. 
-                    A lexical item is simply any item that “functions as a <b>single unit of meaning</b>” <a href="https://www.routledge.com/The-Routledge-Handbook-of-Applied-Linguistics-Volume-Two/Wei-Hua-Simpson/p/book/9780367536244">(Simpson, 2011)</a>. This 
-                    could be a word like “antihero,” a named entity like “Neil Young” or “Lake Louise,” or a potentially 
-                    idiomatic expression like “break a leg.” 
+                    In this work, our goal is to understand the <b>lexical items</b> that make up an LLM's implicit vocabulary. 
+                    A lexical item is simply any item that "functions as a <b>single unit of meaning</b>" <a href="https://www.routledge.com/The-Routledge-Handbook-of-Applied-Linguistics-Volume-Two/Wei-Hua-Simpson/p/book/9780367536244">(Simpson, 2011)</a>. This 
+                    could be a word like "antihero," a named entity like "Neil Young" or "Lake Louise," or a potentially 
+                    idiomatic expression like "break a leg."
                 </p>
                 <p>
                     One key observation about these sequences is that they are low in compositionality; that is, the 
                     overall meaning of the phrase “break a leg” cannot be directly inferred from the meanings of the 
-                    words “break” and “leg.” The same goes for multi-token 
-                    words like “northeastern,” where the tokens that make up that word do not directly 
+                    words "break" and "leg." The same goes for multi-token 
+                    words like "northeastern," where the tokens that make up that word do not directly 
                     contribute to the overall meaning of the word. 
                 </p>
                     
@@ -370,3 +370,4 @@
 </script>
 
 </html>
+
