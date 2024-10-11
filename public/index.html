@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description"
+        content="How do LLMs process multi-token words, common phrases, and named entities? We discover a pattern of token erasure that we hypothesize to be 'footprint' of how LLMs process unnatural tokenization." />
+    <meta property="og:title" content="Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs" />
+    <meta property="og:url" content="https://footprints.baulab.info/" />
+    <meta property="og:image" content="https://footprints.baulab.info/images/paper/probe-cf.png" />
+    <meta property="og:description" content="
+    ">
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs" />
+    <meta name="twitter:description"
+        content="How do LLMs process multi-token words, common phrases, and named entities? We discover a pattern of token erasure that we hypothesize is a 'footprint' of how LLMs process unnatural tokenization." />
+    <meta name="twitter:image" content="https://footprints.baulab.info/images/paper/probe-cf.png" />
+    <link rel="icon" href="favicon.ico?v=2" type="image/x-icon"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagfes/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Math&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <style>
+        .relatedthumb {
+            float: left;
+            width: 200px;
+            margin: 3px 10px 7px 0;
+        }
+
+        .relatedblock {
+            clear: both;
+            display: inline-block;
+        }
+
+        .bold-sc {
+            font-variant: small-caps;
+            font-weight: bold;
+        }
+
+        .cite,
+        .citegroup {
+            margin-bottom: 8px;
+        }
+
+        :target {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body class="nd-docs">
+    <div class="nd-pageheader">
+        <div class="container">
+            <h1 class="lead">
+              <nobr>Token Erasure as a Footprint of</nobr>
+              <nobr>Implicit Vocabulary Items in LLMs</nobr>
+            </h1>
+            <address>
+                <nobr><a href="https://sfeucht.github.io/" target="_blank">Sheridan Feucht</a>,</nobr>
+                <nobr><a href="https://github.com/diatkinson/" target="_blank">David Atkinson</a>,</nobr>
+                <nobr><a href="https://www.byronwallace.com/" target="_blank">Byron C. Wallace</a>,</nobr>
+                <nobr><a href="https://baulab.info/" target="_blank">David Bau</a></nobr><br>
+                <nobr><a href="https://khoury.northeastern.edu/" target="_blank">Northeastern University</a></nobr>
+            </address>
+        </div>
+    </div><!-- end nd-pageheader -->
+
+    <div class="container">
+        <div class="row justify-content-center" style="margin-bottom: 20px">
+        </div>
+        <div class="row justify-content-center text-center">
+
+            <p>
+                <a href="https://arxiv.org/abs/2406.20086" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="100" width="78" src="images/paper-thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="ArXiv Paper thumbnail" data-nothumb="">
+                    <br>Full Paper<br>(ArXiv)</a>
+                <a href="https://github.com/sfeucht/footprints/" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="100" width="78" src="images/code-thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="Github code thumbnail" data-nothumb="">
+                    <br>Source Code<br>(GitHub)<br>
+                </a>
+            </p>
+
+            <div class="card" style="max-width: 1020px;">
+                <div class="card-block">
+                <h3>How do LLMs Represent Words?</h3>
+                <p>
+                    In current LLMs, the <b>meaning</b> of a word often has nothing to do with its constituent <b>tokens</b>. 
+                    For example, the word "northeastern" might be tokenized as "n," "ort," "he," "astern," without any reference to 
+                    the concepts of "north" or "east." Regardless, LLMs <b>still seem to understand the meaning of these tokens put together</b>. 
+
+                    <figure class="center_image">
+                        <img src="images/animated.gif" class="bigfig">
+                    </figure>
+
+                    In this work, we hypothesize the existence of an <i>implicit vocabulary</i> in autoregressive 
+                    models that maps from sequences of tokens to <b>meaningful word-like representations</b> 
+                    in early layers. We discover an interesting <b>token erasure</b> phenomenon that we posit may be a signature 
+                    of this process, and use it as a signal to retrieve possible <i>implicit vocabulary items</i> for Llama 2 and Llama 3.
+                </p>
+                </div><!--card-block-->
+                </div><!--card-->
+
+        </div><!--row-->
+
+        <div class="row">
+            <div class="col">
+                <h2>What do We Mean by "Word-Like Representations"?</h2>
+
+                <p>
+                    In this work, our goal is to understand the <b>lexical items</b> that make up an LLM's implicit vocabulary. 
+                    A lexical item is simply any item that "functions as a <b>single unit of meaning</b>" <a href="https://www.routledge.com/The-Routledge-Handbook-of-Applied-Linguistics-Volume-Two/Wei-Hua-Simpson/p/book/9780367536244">(Simpson, 2011)</a>. This 
+                    could be a word like "antihero," a named entity like "Neil Young" or "Lake Louise," or a potentially 
+                    idiomatic expression like "break a leg."
+                </p>
+                <p>
+                    One key observation about these sequences is that they are low in compositionality; that is, the 
+                    overall meaning of the phrase "break a leg" cannot be directly inferred from the meanings of the 
+                    words "break" and "leg." The same goes for multi-token 
+                    words like "northeastern," where the tokens that make up that word do not directly 
+                    contribute to the overall meaning of the word. 
+                </p>
+                    
+                
+                <h2>Token-Level Erasure</h2>   
+                <p>
+                <a href="#related-work">Previous work</a> shows that in autoregressive models, models tend to store information 
+                about multi-token entities at the last token position (e.g. "Wars" in "Star Wars"). If these last hidden states are representative of 
+                the tokens that preceded them, do they actually encode information about those tokens? Does "Wars" store some representation of the word "Star"?
+                </p>
+                <p>
+                We train linear probes to take a hidden state at position <i>t</i> and predict the previous token at a certain layer. For example,
+                one probe might be trained to predict the previous token (i=-1) from a hidden state at layer 3, while another would be trained to predict 
+                three tokens before (i=-3) hidden states at layer 12. We find the opposite of what we expected: these 
+                particular hidden states <b>exhibit a pronounced "erasing" effect</b>, wherein information about previous 
+                tokens (as well as the current token) becomes less recoverable around layer 10. We even find that this 
+                "erasure" also occurs for multi-token words like "intermittent," suggesting that it <b>may be connected to how models process multi-token lexical items</b>. 
+                </p>
+
+                <div class="text-center">
+                    <figure class="center_image">
+                        <img src="images/paper/probe-cf.png" class="bigfig">
+                        <figcaption>Probe test results for last token representations of CounterFact (Meng et al., 2022) subjects throughout the layers of Llama-2-7b. </figcaption>
+                    </figure>
+                </div>
+
+                <div class="text-center">
+                    <figure class="center_image">
+                        <img src="images/paper/probe-mtw.png" class="bigfig">
+                        <figcaption>Probe test results for last token representations of multi-token words from Wikipedia throughout the layers of Llama-2-7b. </figcaption>
+                    </figure>
+                </div>
+
+
+                <h2>What Words Does Llama Know?</h2>
+
+                <p>Next, we develop a method to recover other token sequences that have the same "erasure" effect in Section 4. 
+                    We use this method to generate a list of possible implicit vocabulary entries for Llama-2-7b and Llama-3-8b
+                    based on Pile and Wikipedia datasets, which can be found in Appendix E of our paper.
+                In the example Wikipedia article below, we can see that although recall for multi-token words is low, our "erasing score" (shown in blue) seems to precisely mark sequences that are plausible implicit vocabulary items.
+                </p>
+
+                <p id="document1-container" class="document-container">
+                    <span title='-0.0'> <b> &lt;s&gt; </b> </span> <span title='0.32055378974882837'> <b> Monk' </b> </span> <span title='-0.14006837371001288'>s </span> <span title='0.34465692440668505'> compos </span> <span title='-0.33485952114159545'>itions </span> <span title='-0.0007300437726390213'> and </span> <span title='7.191172320138624e-06'> impro </span> <span title='0.3250458663739361'>vis </span> <span title='-0.23064598326133515'>ations </span> <span title='0.3272421391851168'> feature </span> <span title='-3.249298859997937e-06'> dis </span> <span title='0.3170974587802391'>son </span> <span title='0.02130475522729584'>ances </span> <span title='-0.006104458884995736'> and </span> <span title='0.33333369096120197'> angular </span> <span title='0.23422609341780895'> <b> melodic </b> </span> <span title='0.5553933203344059'> <b> twists </b> </span> <span title='-0.028362476552577672'>, </span> <span title='-0.0002551387296989323'> often </span> <span title='0.3568338903908928'> using </span> <span title='0.338957504285533'> <b> flat ninths, </b> </span> <span title='-0.009434451037450798'> flat </span> <span title='0.38429182149896707'> fifth </span> <span title='0.18360330978790587'> <b>s, </b> </span> <span title='-0.03359681554138249'> unexpected </span> <span title='0.3333333351157403'> chrom </span> <span title='-0.030962998668352736'>atic </span> <span title='0.33420702012041775'> notes </span> <span title='0.027812377376635406'> <b> together, </b> </span> <span title='0.414763531929968'> <b> low bass </b> </span> <span title='0.32373068281245837'> notes </span> <span title='-4.704805283213594e-05'> and </span> <span title='0.31528158185383964'> <b> stride </b> </span> <span title='0.01592371452916373'> <b>, and fast whole </b> </span> <span title='0.3333296917832816'> tone </span> <span title='0.33332431929314527'> runs </span> <span title='-0.0018572168398615413'>, </span> <span title='-4.132594216774281e-06'> combining </span> <span title='0.1357554400751913'> a </span> <span title='0.007456201684686728'> <b> highly per </b> </span> <span title='0.39790690526812494'>cuss </span> <span title='-0.07993912052673595'>ive </span> <span title='0.29243842956131766'> attack </span> <span title='-0.005090299140041067'> with </span> <span title='0.0005664615127898026'> ab </span> <span title='0.25650114052466794'>rupt </span> <span title='-0.01338159809529312'>, </span> <span title='0.5815844506714603'> <b> dramatic </b> </span> <span title='-0.0022714780789100998'> use </span> <span title='-0.001028675896426015'> of </span> <span title='0.0076426148104171'> switched </span> <span title='0.0010800563031807334'> key </span> <span title='0.3078288434783329'> releases </span> <span title='-7.710791586864022e-05'>, </span> <span title='0.2031034588833755'> <b> silences </b> </span> <span title='-8.53631425101753e-06'>, </span> <span title='-1.5106532676630498e-06'> and </span> <span title='0.320808440446851'> hes </span> <span title='0.024658918380737267'>itations </span> <span title='0.0'>. </span>
+                    <figcaption>
+                        Example concept scores for Llama-2-7b on a Wikipedia paragraph. Borders indicate spans of 
+                        tokens identified by our segmentation algorithm, where <b>bold</b> indicates multi-token spans. 
+                        Multi-token spans with a concept score higher than 0.10 are colored blue. Hover to see exact scores, which range from 0.0 to 1.0. 
+                    </figcaption>
+                </p>
+
+                <!-- <p id="document2-container" class="document-container">
+                        <span title='-0.0'> <b> &lt;s&gt; </b> </span> <span title='0.0012660324573516642'> <b> Q: </b> </span> <span title='0.043863058090209954'>
+                </span> <span title='0.00047759215037026663'>
+                </span> <span title='0.00014565388361606666'>Model </span> <span title='0.269485904998146'> <b>-View </b> </span> <span title='0.4525676099674969'> <b>-Controller in JavaScript </b> </span> <span title='0.00019092110642301844'>
+                </span> <span title='-0.0974927265197039'>
+                </span> <span title='0.29696360652665366'>tl </span> <span title='0.0149823226141355'>; </span> <span title='-1.4903265802483169e-05'>dr </span> <span title='0.33332991408021445'>: </span> <span title='-0.19246168434619895'> How </span> <span title='-0.0004540609051299303'> does </span> <span title='0.33332880999286085'> one </span> <span title='-0.32346890370051057'> implement </span> <span title='0.09077304981619819'> <b> MVC in </b> </span> <span title='0.0609043213284944'> <b> JavaScript in a </b> </span> <span title='0.22259879110667194'> clean </span> <span title='-0.0016937812674425645'> way </span> <span title='0.10572834772593169'> <b>?
+                I'm </b> </span> <span title='-0.010636678528195838'> trying </span> <span title='-0.00012017180173033334'> to </span> <span title='0.007677527560320263'> <b> implement MVC in </b> </span> <span title='0.01224488547662378'> JavaScript </span> <span title='0.12208197413877366'>. </span> <span title='0.36236731133734185'> I </span> <span title='0.05759163606818285'> <b> have goog </b> </span> <span title='0.39995599529134457'> <b>led and </b> </span> <span title='-7.745152637043888e-05'> re </span> <span title='0.11690806152189619'>organ </span> <span title='-0.004154816580315431'>ized </span> <span title='0.6226261785874764'> with </span> <span title='-4.035810828402506e-05'> my </span> <span title='0.3333329326539121'> code </span> <span title='-0.00023329670671103398'> count </span> <span title='0.333352645144877'>less </span> <span title='0.4204211141914129'> times </span> <span title='0.3581648493199712'> <b> but have </b> </span> <span title='0.0'> not </span> <span title='-9.931078087295948e-07'> found </span> <span title='0.023007333278655992'> a </span> <span title='0.172352166371992'> <b> suitable solution. ( </b> </span> <span title='0.0012194425297344666'>The </span> <span title='-0.22058635057139023'> code </span> <span title='0.0026736060778299706'> just </span> <span title='0.9888581630463401'> doesn </span> <span title='0.3925184547090754'> <b>'t </b> </span> <span title='-0.002363180140036943'> " </span> <span title='0.5026276335822717'> <b>feel right </b> </span> <span title='-0.0014232288097749048'>". </span> <span title='0.383842251046327'>) </span> <span title='-0.001143576297494019'>
+                </span> <span title='2.1251102827690715e-05'>Here </span> <span title='0.09949827194213866'>' </span> <span title='-0.0033910640083121336'>s </span> <span title='0.06022454645076723'> <b> how I' </b> </span> <span title='0.009241887612006366'>m </span> <span title='0.33334863171034756'> going </span> <span title='-0.5400336373465203'> about </span> <span title='0.34079667359415333'> <b> it right now. It' </b> </span> <span title='-0.001975112957249297'>s </span> <span title='0.13185968408970436'> <b> incredibly complicated </b> </span> <span title='0.3327725870414421'> and </span> <span title='0.16578895708757307'> <b> is a pain </b> </span> <span title='-0.018885116910193244'> to </span> <span title='0.3210218460755395'> <b> work with ( </b> </span> <span title='0.11054619409409365'>but </span> <span title='-0.00322490959395812'> still </span> <span title='0.3207156802267738'> better </span> <span title='-0.011103255707894277'> than </span> <span title='0.33479125761721207'> the </span> <span title='0.36550040918517657'> <b> pile of code I had </b> </span> <span title='-6.887284864847327e-05'> before </span> <span title='0.00016689416952429998'>). </span> <span title='0.6277158689096826'> It </span> <span title='-0.008314627158511277'> has </span> <span title='0.0003902465848639654'> ugly </span> <span title='0.3006567224443813'> <b> workarounds that </b> </span> <span title='-0.010773661235968242'> sort </span> <span title='0.03825034697850541'> of </span> <span title='0.33342190654245013'> defeat </span> <span title='0.24064606297724822'> the </span> <span title='6.754947895204476e-07'> purpose </span> <span title='0.14926167129297224'> <b> of MVC. </b> </span> <span title='0.14478426261121055'> <b>
+                And beh </b> </span> <span title='0.29858976063163334'>old </span> <span title='0.0092585437552251'> <b>, the mess </b> </span> <span title='0.31185525547577225'>, </span> <span title='0.0003977759649084521'> if </span> <span title='-0.0006968407733701758'> you </span> <span title='0.28898297746976215'>' </span> <span title='-9.970280370906724e-05'>re </span> <span title='0.13926737146247042'> <b> really brave: </b> </span> <span title='0.026554363562092394'> <b>
+                // Create a " </b> </span> <span title='0.002115038957223684'>main </span> <span title='-0.0006887222358879148'> model </span> <span title='0.04496715480320308'> <b>"
+                var main </b> </span> <span title='-0.0027123292287190674'> = </span> <span title='0.007718384265899633'> Model </span> <span title='0.0'>0 </span> <span title='0.12168558832937668'> <b>();
+                
+                </b> </span> <span title='0.0025241123461914967'>function </span> <span title='0.19998030807234485'> <b> Model0 </b> </span> <span title='0.2663692943087186'> <b>() {
+                    </b> </span> <span title='0.3535387610653447'> <b> // Create an associated view and </b> </span> <span title='0.07082056999206542'> store </span> <span title='-0.3043332099914551'> its </span> <span title='-0.3028517834697813'> methods </span> <span title='-0.0011104263685410545'> in </span> <span title='0.0023397405941798805'> " </span> <span title='0.30132507532835007'>view </span> <span title='-0.13914236426353027'>" </span> <span title='-0.046338160832722984'>
+                </span> <span title='0.3768773246036802'> <b>    var </b> </span> <span title='0.10366382201512654'> view </span> <span title='0.25005556434599424'> <b> = View0(); </b> </span> <span title='-0.0023615447425278688'>
+                </span> <span title='0.6610484439799248'>
+                </span> <span title='0.2981722408532361'> <b>    // </b> </span> <span title='-2.4910123101386744e-05'> Create </span> <span title='0.00044621766549347717'> a </span> <span title='0.5588884137570858'> <b> submodel </b> </span> <span title='0.014935506470317531'> <b> and pass it </b> </span> <span title='0.14958348482226333'> a </span> <span title='0.0033000865611635534'> function </span> <span title='0.03486933310826618'>  </span> <span title='7.152557373046875e-06'>
+                </span> <span title='0.1453636139616471'> <b>    // </b> </span> <span title='0.45454224113493025'> <b> that will " </b> </span> <span title='0.39993609227351656'> <b>subview </b> </span> <span title='0.28109360668703576'> <b>ify" the sub </b> </span>
+                </p> -->
+
+                Because Llama-3-8b has 4x the number of tokens as Llama-2-7b, its lexical items look slightly different: 
+                there seem to be more multi-token phrases like "tl;dr" and "ugly workaround" that reflect common internet parlance. 
+
+                <p id="document4-container" class="document-container">
+                    <span title='-0.0'> <b> &lt;s&gt; </b> </span> <span title='0.000252455472946167'> Q </span> <span title='0.21981921792030334'>: </span> <span title='-0.23172380062169395'>
+             </span> <span title='0.43245695399915957'>
+             </span> <span title='-0.6239359502991023'>Model </span> <span title='0.027962963157755188'>- </span> <span title='0.38091714802673476'>View </span> <span title='0.05212762236963538'>- </span> <span title='0.3328339097305656'>Controller </span> <span title='-0.0006259043925677296'> in </span> <span title='0.3320150868415415'> JavaScript </span> <span title='-0.5252956213777066'>
+             </span> <span title='-0.00011787018140683521'>
+             </span> <span title='0.3072519550843281'> <b>tl;dr: </b> </span> <span title='0.010884314734759658'> <b> How does </b> </span> <span title='0.32915458508771916'> <b> one implement MVC in JavaScript </b> </span> <span title='0.22969526734720613'> <b> in a clean way </b> </span> <span title='0.15801016726982198'>? </span> <span title='0.08018932739893596'>
+             </span> <span title='0.3277221133864569'>I </span> <span title='0.3193761120983254'>' </span> <span title='0.3247935663553641'>m </span> <span title='-1.1606279551780493e-05'> trying </span> <span title='0.10265138279261346'> <b> to implement </b> </span> <span title='-0.0010350152286776975'> MVC </span> <span title='0.16216018957796516'> in </span> <span title='-0.00039186867944667603'> JavaScript </span> <span title='0.3313677956866094'>. </span> <span title='0.4911034748419023'> I </span> <span title='0.3229981101142208'> have </span> <span title='-0.2164342490808835'> goog </span> <span title='-0.00016542021179096386'>led </span> <span title='0.2703791549619551'> <b> and reorganized with </b> </span> <span title='0.4017352566414047'> <b> my code </b> </span> <span title='0.15798179484728764'> <b> countless </b> </span> <span title='-0.002595897118151135'> times </span> <span title='0.2974300978987704'> but </span> <span title='0.43928392335417943'> have </span> <span title='0.3728876245088638'> <b> not found </b> </span> <span title='-0.21865382549973825'> a </span> <span title='-0.0020490430903553993'> suitable </span> <span title='0.25747085579584766'> <b> solution. (The </b> </span> <span title='-0.3289288841603728'> code </span> <span title='0.0077007102716647085'> just </span> <span title='0.3288642509437843'> <b> doesn't "feel </b> </span> <span title='-0.1505098267014511'> right </span> <span title='-0.052446863958683'>". </span> <span title='0.1771544317404429'>) </span> <span title='-0.2921707831742045'>
+             </span> <span title='0.03524204055621932'>Here </span> <span title='-0.26387984367708367'>' </span> <span title='-0.006899879641764528'>s </span> <span title='0.2522753519359467'> <b> how I' </b> </span> <span title='0.32111905095987936'>m </span> <span title='0.0700264626829176'> <b> going about </b> </span> <span title='0.3282569733113133'> <b> it right </b> </span> <span title='0.1368932501437963'> now </span> <span title='0.2451833792918324'>. </span> <span title='0.0010210578068375331'> It </span> <span title='0.3296608267966517'>' </span> <span title='0.11295878603517259'> <b>s incredibly </b> </span> <span title='0.06666943792574058'> <b> complicated and is </b> </span> <span title='-0.02751992146174113'> a </span> <span title='0.15706628475171178'> pain </span> <span title='0.4256061945385092'> <b> to work </b> </span> <span title='0.30278963713306445'> <b> with (but still better than the pile </b> </span> <span title='-0.0006519386765072946'> of </span> <span title='0.2558272033929825'> code </span> <span title='-0.18705018454541764'> I </span> <span title='-0.00015505693409068044'> had </span> <span title='-0.03595322370529175'> before </span> <span title='-0.01692072035984893'>). </span> <span title='-0.0008765449366521239'> It </span> <span title='0.27824067958663357'> has </span> <span title='0.26214320206130903'> <b> ugly workarounds </b> </span> <span title='0.2499055560883979'> <b> that sort of defeat </b> </span> <span title='0.06665898363888104'> <b> the purpose of </b> </span> <span title='-0.0020486911137898764'> MVC </span> <span title='0.0008762481666053645'>. </span> <span title='0.05691000000496874'> <b>
+            And beh </b> </span> <span title='0.37962161337643924'> <b>old, the mess </b> </span> <span title='-0.0030494716571836827'>, </span> <span title='0.023673979385448827'> <b> if you' </b> </span> <span title='0.6335828854199038'> <b>re really brave: </b> </span> <span title='-0.0005886029643988877'>
+             </span> <span title='0.00906455376931555'>// </span> <span title='0.46618813641058904'> <b> Create a "main </b> </span> <span title='0.2716066436578674'> <b> model" </b> </span> <span title='0.38316836354622863'> <b>
+            var </b> </span> <span title='-2.0494604259498436e-06'> main </span> <span title='0.33484364085188795'> <b> = Model0 </b> </span> <span title='0.22980929739263445'>(); </span> <span title='0.330754890056223'> <b>
+            
+            function Model0() { </b> </span> <span title='0.5440339127066457'>
+             </span> <span title='0.23396158496216055'>    </span> <span title='0.28083964299574066'> <b> // Create an </b> </span> <span title='0.12361245571325223'> associated </span>
+             <figcaption>
+                Example concept scores for Llama-3-8b on a Pile paragraph. Borders indicate spans of 
+                tokens identified by our segmentation algorithm, where <b>bold</b> indicates multi-token spans. 
+                Multi-token spans with a concept score higher than 0.10 are colored blue. Hover to see exact scores, which range from 0.0 to 1.0. 
+            </figcaption>    
+            </p>
+
+                    
+                <h2 id="related-work">Related Work</h2>
+                
+                <p>Our work builds upon insights from other papers:</p>
+
+                <p class="citation"><a href="https://rome.baulab.info/"><img src="images/rome.png" alt="Causal Tracing experiment from Meng et al. (2022)" style="max-height: 200px">Kevin Meng, David Bau, Alex Andonian, Yonatan Belinkov. Locating and Editing Factual Associations in GPT. 2022.</a><br>
+                <b>Notes:</b> In their causal tracing experiments, the authors discover the importance of the last subject token when it comes to encoding factual information. 
+                This finding is what inspired us to probe these representations in this work. 
+                </p>  
+
+                <p class="citation"><a href="https://arxiv.org/abs/2304.14767"><img src="images/dissecting.png" alt="Figure 1 from Geva et al. (2023)">Mor Geva, Jasmijn Bastings, Katja Filippova, Amir Globerson. Dissecting Recall of Factual Associations in Auto-Regressive Language Models. 2023.</a><br>
+                <b>Notes:</b> The authors describe a <i>subject enrichment</i> stage at the last token position of CounterFact entities in early layers, and discover how that information is carried over through relation propagation and attribute extraction. 
+                The previous token erasure that we observe roughly co-occurs with this subject enrichment stage. 
+                </p>                
+                
+                <p class="citation"><a href="https://transformer-circuits.pub/2022/solu/index.html"><img src="images/elhage-2022.png" alt="An example of a retokenization neuron from Elhage et al. (2022)"> Nelson Elhage, Tristan Hume, Catherine Olsson, Neel Nanda, ... Christopher Olah. Softmax Linear Units. 2022.</a><br>
+                <b>Notes:</b> When studying individual neuron behavior in specially-constructed models, the authors find evidence of <i>detokenization</i> and <i>retokenization</i> neurons in early and late layers respectively. 
+                The detokenization neurons that they find fire on what we consider lexical items in this paper (multi-token words, named entities, LaTeX expressions).  
+                </p>
+
+
+	
+                <h2>How to cite</h2>
+
+                <p>This work will be presented at EMNLP 2024. It can be cited as follows:
+                </p>
+
+                <div class="card">
+                    <h3 class="card-header">bibliography</h3>
+                    <div class="card-block"> 
+                        <p style="text-indent: -3em; margin-left: 3em;" class="card-text clickselect">
+                            Sheridan Feucht, David Atkinson, Byron Wallace, and David Bau."<i>Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs.</i>" Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP 2024).</nobr>
+                        </p>
+                    </div>
+                    <h3 class="card-header">bibtex</h3>
+                    <div class="card-block">
+                        <pre class="card-text clickselect"
+                        >@inproceedings{feucht2024footprints,
+    title={Token Erasure as a Footprint of Implicit Vocabulary Items in LLMs},
+    author={Feucht, Sheridan and Atkinson, David and Wallace, Byron and Bau, David},
+    booktitle={The 2024 Conference on Empirical Methods in Natural Language Processing},
+    year={2024},
+    url={https://arxiv.org/abs/2406.20086}
+}</pre>
+                    </div>
+                </div>
+
+            </div> <!--col -->    
+        </div> <!--row -->
+    </div> <!-- container -->
+
+    
+
+    <footer class="nd-pagefooter">
+        <div class="row">
+            <div class="col-6 col-md text-center">
+                <a href="https://baulab.info/">About the Bau Lab</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    $(document).on('click', '.clickselect', function (ev) {
+        var range = document.createRange();
+        range.selectNodeContents(this);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    });
+</script>
+
+<script>
+    const doc1Elements = document.querySelectorAll('#document1-container span');
+    const doc1Scores = [-0.0, 0.32055378974882837, -0.14006837371001288, 0.34465692440668505, -0.33485952114159545, -0.0007300437726390213, 7.191172320138624e-06, 0.3250458663739361, -0.23064598326133515, 0.3272421391851168, -3.249298859997937e-06, 0.3170974587802391, 0.02130475522729584, -0.006104458884995736, 0.33333369096120197, 0.23422609341780895, 0.5553933203344059, -0.028362476552577672, -0.0002551387296989323, 0.3568338903908928, 0.338957504285533, -0.009434451037450798, 0.38429182149896707, 0.18360330978790587, -0.03359681554138249, 0.3333333351157403, -0.030962998668352736, 0.33420702012041775, 0.027812377376635406, 0.414763531929968, 0.32373068281245837, -4.704805283213594e-05, 0.31528158185383964, 0.01592371452916373, 0.3333296917832816, 0.33332431929314527, -0.0018572168398615413, -4.132594216774281e-06, 0.1357554400751913, 0.007456201684686728, 0.39790690526812494, -0.07993912052673595, 0.29243842956131766, -0.005090299140041067, 0.0005664615127898026, 0.25650114052466794, -0.01338159809529312, 0.5815844506714603, -0.0022714780789100998, -0.001028675896426015, 0.0076426148104171, 0.0010800563031807334, 0.3078288434783329, -7.710791586864022e-05, 0.2031034588833755, -8.53631425101753e-06, -1.5106532676630498e-06, 0.320808440446851, 0.024658918380737267, 0.0];
+
+    const doc4Elements = document.querySelectorAll('#document4-container span');
+    const doc4Scores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3072519550843281, 0.010884314734759658, 0.32915458508771916, 0.22969526734720613, 0, 0, 0, 0, 0, 0, 0.10265138279261346, 0, 0, 0, 0, 0, 0, 0, 0, 0.2703791549619551, 0.4017352566414047, 0.15798179484728764, 0, 0, 0, 0.3728876245088638, 0, 0, 0.25747085579584766, 0, 0, 0.3288642509437843, 0, 0, 0, 0, 0, 0, 0, 0.2522753519359467, 0, 0.0700264626829176, 0.3282569733113133, 0, 0, 0, 0, 0.11295878603517259, 0.06666943792574058, 0, 0, 0.4256061945385092, 0.30278963713306445, 0, 0, 0, 0, 0, 0, 0, 0, 0.26214320206130903, 0.2499055560883979, 0.06665898363888104, 0, 0, 0.05691000000496874, 0.37962161337643924, 0, 0.023673979385448827, 0.6335828854199038, 0, 0, 0.46618813641058904, 0.2716066436578674, 0.38316836354622863, 0, 0.33484364085188795, 0, 0.330754890056223, 0, 0, 0.28083964299574066, 0];
+
+    //, (doc2Elements, doc2Scores), (doc3Elements, doc3Scores),
+    const allDocs = [[doc1Elements, doc1Scores], [doc4Elements, doc4Scores]];
+
+    function getColorFromGradient(s, v) {
+        // Clamp the value between -1 and 1
+        v = Math.max(-1, Math.min(1, v));
+
+        // blue (high) (68, 139, 252)
+        const blue_r = 68;
+        const blue_g = 139; 
+        const blue_b = 252;
+
+        var r = 0;
+        var g = 0; 
+        var b = 0;
+
+        r = Math.floor(255 + v * (blue_r - 255));  // Math.floor(255 * (1 - v));
+        g = Math.floor(255 + v * (blue_g - 255));
+        b = Math.floor(255 + v * (blue_b - 255));
+        console.log(v, r, g, b);
+
+        // Construct the RGB color string
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    console.log("alldocs", allDocs);
+    allDocs.forEach((tup) => {
+        elements = tup[0];
+        scores = tup[1];
+        console.log(elements);
+        elements.forEach((span, index) => {
+            if (span.children.length > 0) {
+                span.style.backgroundColor = getColorFromGradient(span, scores[index]);
+            }
+        })
+    });
+</script>
+
+</html>
+
